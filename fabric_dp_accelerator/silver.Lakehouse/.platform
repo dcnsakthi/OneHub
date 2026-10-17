@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Lakehouse",
+    "displayName": "silver",
+    "description": "silver zone of the data lake."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "bc7cc2a6-e144-a373-4974-2d5eef98847b"
+  }
+}

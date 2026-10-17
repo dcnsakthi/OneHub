@@ -1,0 +1,280 @@
+table Data_Pipeline_Logs
+	lineageTag: 55cd7c49-c5ac-4e16-beeb-a20ae012b7f2
+	sourceLineageTag: [dbo].[Data_Pipeline_Logs]
+
+	column 'Log ID'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 8740db61-b2ea-43e8-b349-ddcba15b7fa3
+		sourceLineageTag: Log_ID
+		summarizeBy: none
+		sourceColumn: Log_ID
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Table ID'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 5a793b8e-0053-4fa4-9905-f4d61c027ae1
+		sourceLineageTag: Table_ID
+		summarizeBy: count
+		sourceColumn: Table_ID
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Source Details'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: d16f4741-faea-4da1-a30c-ccb2c9b43a6d
+		sourceLineageTag: Data_Source_Details
+		summarizeBy: none
+		sourceColumn: Data_Source_Details
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ingestion Start Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 12bb81f7-bb0f-4030-b03a-0e7b6dab2c8c
+		sourceLineageTag: Ingestion_Start_Time
+		summarizeBy: none
+		sourceColumn: Ingestion_Start_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ingestion End Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 5a4c4174-382b-48a4-b4fb-3ef334710d46
+		sourceLineageTag: Ingestion_End_Time
+		summarizeBy: none
+		sourceColumn: Ingestion_End_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ingestion Status'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: f0bd5d4d-9fad-4634-ab8c-9d8109a77a89
+		sourceLineageTag: Ingestion_Status
+		summarizeBy: none
+		sourceColumn: Ingestion_Status
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Watermark Value'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: c7901a09-5a01-44d9-8a46-fe134cbfa63f
+		sourceLineageTag: Watermark_Value
+		summarizeBy: none
+		sourceColumn: Watermark_Value
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Records Processed'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: 174119e2-3296-4df4-af54-991462d1d7bc
+		sourceLineageTag: Records_Processed
+		summarizeBy: sum
+		sourceColumn: Records_Processed
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarantined Records'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: aa5c34e3-7b5c-4a2f-9386-ec0095856539
+		sourceLineageTag: Quarantined_Records
+		summarizeBy: sum
+		sourceColumn: Quarantined_Records
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fabric Monitor URL'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: ae05b3d2-22e2-48f8-8e97-3328ff600911
+		sourceLineageTag: Fabric_Monitor_URL
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: Fabric_Monitor_URL
+
+		changedProperty = Name
+
+		changedProperty = DataCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Trigger Name'
+		dataType: string
+		sourceProviderType: varchar(500)
+		lineageTag: c3cde1a4-f888-4652-9390-29aace9eb5da
+		sourceLineageTag: Trigger_Name
+		summarizeBy: none
+		sourceColumn: Trigger_Name
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Trigger Step'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 6b4ed9e5-5b22-4a2c-9498-8bde96ab7c77
+		sourceLineageTag: Trigger_Step
+		summarizeBy: sum
+		sourceColumn: Trigger_Step
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Trigger Execution ID'
+		dataType: string
+		sourceProviderType: varchar(500)
+		lineageTag: ab97bd64-37df-4678-b36f-635e3de8d52a
+		sourceLineageTag: Trigger_Execution_ID
+		summarizeBy: none
+		sourceColumn: Trigger_Execution_ID
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Trigger Execution Start Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 10021d18-0abb-4532-88d7-ad93997f7717
+		sourceLineageTag: Trigger_Execution_Start_Time
+		summarizeBy: none
+		sourceColumn: Trigger_Execution_Start_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Entity
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 7789e70e-a8e5-4e4f-95a8-cacacf55e1a5
+		sourceLineageTag: Target_Entity
+		summarizeBy: none
+		sourceColumn: Target_Entity
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_Key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 19145a0d-6419-4887-a559-11c821216fe1
+		sourceLineageTag: Date_Key
+		summarizeBy: none
+		sourceColumn: Date_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Medallion_Layer
+		dataType: string
+		sourceProviderType: varchar(50)
+		lineageTag: 6af772eb-2cc3-4b1b-adc3-1346aec8dc11
+		sourceLineageTag: Source_Medallion_Layer
+		summarizeBy: none
+		sourceColumn: Source_Medallion_Layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Type
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: dea74aaa-f69b-498c-8593-1ca43822a67f
+		sourceLineageTag: Source_Type
+		summarizeBy: none
+		sourceColumn: Source_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Medallion_Layer
+		dataType: string
+		sourceProviderType: varchar(50)
+		lineageTag: efb23c22-1bae-43f9-997d-53d5aa9271d6
+		sourceLineageTag: Target_Medallion_Layer
+		summarizeBy: none
+		sourceColumn: Target_Medallion_Layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Type
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 26f3cb5d-fe96-42ca-9402-97dc078d0014
+		sourceLineageTag: Target_Type
+		summarizeBy: none
+		sourceColumn: Target_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Datastore
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 7967da2a-9ad7-49d7-901c-8025f62e4d58
+		sourceLineageTag: Target_Datastore
+		summarizeBy: none
+		sourceColumn: Target_Datastore
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Processing_Phase
+		dataType: string
+		sourceProviderType: varchar(50)
+		lineageTag: ab9e7563-bcae-4681-9441-08fdc72ffa72
+		sourceLineageTag: Processing_Phase
+		summarizeBy: none
+		sourceColumn: Processing_Phase
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data_Pipeline_Logs = entity
+		mode: directLake
+		source
+			entityName: Data_Pipeline_Logs
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

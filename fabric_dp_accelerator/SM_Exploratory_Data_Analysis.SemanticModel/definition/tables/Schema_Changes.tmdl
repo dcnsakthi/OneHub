@@ -1,0 +1,108 @@
+table Schema_Changes
+	lineageTag: 1d73c255-a8ff-491f-92f7-a931463683cc
+	sourceLineageTag: [dbo].[Schema_Changes]
+
+	column Table_ID
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 300e8ae5-27e6-40ad-b36b-fe8eb5c75ccc
+		sourceLineageTag: Table_ID
+		summarizeBy: count
+		sourceColumn: Table_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Table_Name
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 96b279c8-932a-402a-904c-5f90e67d98d0
+		sourceLineageTag: Table_Name
+		summarizeBy: none
+		sourceColumn: Table_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Change_Type
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: df97f8a5-0209-45a3-abb6-4cab90f04f0a
+		sourceLineageTag: Change_Type
+		summarizeBy: none
+		sourceColumn: Change_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column_Name
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: cc6f7466-f29a-4dd5-846c-d92661d20589
+		sourceLineageTag: Column_Name
+		summarizeBy: none
+		sourceColumn: Column_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data_Type_Details
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: d6413fe8-e970-4982-9691-7b4671b3cafd
+		sourceLineageTag: Data_Type_Details
+		summarizeBy: none
+		sourceColumn: Data_Type_Details
+
+		annotation SummarizationSetBy = Automatic
+
+	column Schema_Arrival_Time
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: ca06980a-6407-4f8b-b22f-91a1cbbaaa59
+		sourceLineageTag: Schema_Arrival_Time
+		summarizeBy: none
+		sourceColumn: Schema_Arrival_Time
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fabric_Monitor_URL
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: f2f19632-bd7c-4f20-bc15-0d972b483ac3
+		sourceLineageTag: Fabric_Monitor_URL
+		summarizeBy: none
+		sourceColumn: Fabric_Monitor_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_Key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: e6e518e1-27a1-4d28-a448-f810b87ce918
+		sourceLineageTag: Date_Key
+		summarizeBy: count
+		sourceColumn: Date_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Datastore
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 3ba16083-dec3-45a0-9645-3384cf12ecf5
+		sourceLineageTag: Datastore_Name
+		summarizeBy: none
+		sourceColumn: Datastore_Name
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Schema_Changes = entity
+		mode: directLake
+		source
+			entityName: Schema_Changes
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

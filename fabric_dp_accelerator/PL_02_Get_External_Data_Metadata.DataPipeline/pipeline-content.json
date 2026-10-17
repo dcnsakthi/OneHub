@@ -1,0 +1,436 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Connection",
+        "type": "Switch",
+        "dependsOn": [],
+        "typeProperties": {
+          "on": {
+            "value": "@pipeline().parameters.source_details_source",
+            "type": "Expression"
+          },
+          "cases": [
+            {
+              "value": "oracle",
+              "activities": [
+                {
+                  "name": "Oracle Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "OracleSource",
+                      "oracleReaderQuery": {
+                        "value": "select \t\ta.COLUMN_NAME, a.DATA_TYPE, a.DATA_LENGTH, a.DATA_PRECISION, a.DATA_SCALE, a.NULLABLE, b.comments as column_comments, c.comments as table_comments, d.constraint_type\nFROM \t\tall_tab_columns a\nLEFT JOIN   all_col_comments b\nON          a.table_name = b.table_name\nAND         a.OWNER = b.OWNER\nAND         a.COLUMN_NAME = b.column_name\nLEFT JOIN   all_tab_comments c\nON          a.table_name = c.table_name\nAND         a.OWNER = c.OWNER\nLEFT JOIN   (SELECT distinct cols.table_name, cols.column_name, cons.owner, cons.constraint_type\nFROM all_constraints cons, all_cons_columns cols\nWHERE  cons.constraint_name = cols.constraint_name\nAND cons.owner = cols.owner\nAND cons.table_name = cols.table_name      \nAND cons.constraint_type = 'P') d\nON          a.table_name = d.table_name\nAND         a.OWNER = d.OWNER\nAND         a.COLUMN_NAME = d.column_name\nWHERE \t\ta.table_name = '@{pipeline().parameters.primary_config.source_details_table_name}'\nAND \t\ta.OWNER = '@{pipeline().parameters.primary_config.source_details_schema_name}'\nORDER BY \tCOLUMN_ID",
+                        "type": "Expression"
+                      },
+                      "partitionOption": "None",
+                      "queryTimeout": "02:00:00"
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "OracleTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('Oracle Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "azure_sql",
+              "activities": [
+                {
+                  "name": "AzureSQL Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "AzureSqlSource",
+                      "sqlReaderQuery": {
+                        "value": "SELECT\n    c.name 'COLUMN_NAME',\n    t.Name 'DATA_TYPE',\n    c.max_length 'DATA_LENGTH',\n    c.precision 'DATA_PRECISION',\n    c.scale 'DATA_SCALE',\n    c.is_nullable 'NULLABLE',\n    MAX(CASE\n        WHEN ISNULL(i.is_primary_key, 0) = 1 THEN 1\n        ELSE 0\n    END) 'PRIMARY_KEY'\nFROM    \n    sys.columns c\nINNER JOIN\n    sys.types t ON c.user_type_id = t.user_type_id\nLEFT OUTER JOIN\n    sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id\nLEFT OUTER JOIN\n    sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id\nWHERE\n    c.object_id = OBJECT_ID('@{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}')\nGROUP BY\n    c.name, t.Name, c.max_length, c.precision, c.scale, c.is_nullable",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None"
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "AzureSqlTable",
+                      "schema": [],
+                      "typeProperties": {
+                        "database": {
+                          "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                          "type": "Expression"
+                        }
+                      },
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "AzureSQL TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "AzureSQL Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('AzureSQL Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "db2",
+              "activities": [
+                {
+                  "name": "DB2 Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "Db2Source",
+                      "query": {
+                        "value": "SELECT\nc.column_name as COLUMN_NAME\n,c.data_type as DATA_TYPE\n,c.character_maximum_length as DATA_LENGTH\n,c.numeric_precision as DATA_PRECISION\n,c.numeric_scale as DATA_SCALE\n,c.IS_NULLABLE AS NULLABLE\n,d.UNIQUERULE AS PRIMARY_KEY\nfrom sysibm.tables t\njoin sysibm.columns c\non t.table_schema = c.table_schema\nand t.table_name = c.table_name\nLEFT JOIN SYSIBM.SYSINDEXES d\non c.table_schema = d.TBCREATOR\nand c.table_name = d.TBNAME\nAND c.column_name = d.NAME\nAND d.UNIQUERULE = 'P'\nwhere t.table_schema = '@{pipeline().parameters.primary_config.source_details_schema_name}'\nand t.table_name = '@{pipeline().parameters.primary_config.source_details_table_name}'\norder by c.ordinal_position\n",
+                        "type": "Expression"
+                      }
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "Db2Table",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "DB2 TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "DB2 Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('DB2 Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "sql_server",
+              "activities": [
+                {
+                  "name": "SQLServer Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "SqlServerSource",
+                      "sqlReaderQuery": {
+                        "value": "SELECT\n    c.name 'COLUMN_NAME',\n    t.Name 'DATA_TYPE',\n    c.max_length 'DATA_LENGTH',\n    c.precision 'DATA_PRECISION',\n    c.scale 'DATA_SCALE',\n    c.is_nullable 'NULLABLE',\n    MAX(CASE\n        WHEN ISNULL(i.is_primary_key, 0) = 1 THEN 1\n        ELSE 0\n    END) 'PRIMARY_KEY'\nFROM    \n    sys.columns c\nINNER JOIN\n    sys.types t ON c.user_type_id = t.user_type_id\nLEFT OUTER JOIN\n    sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id\nLEFT OUTER JOIN\n    sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id\nWHERE\n    c.object_id = OBJECT_ID('@{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}')\nGROUP BY\n    c.name, t.Name, c.max_length, c.precision, c.scale, c.is_nullable",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None"
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "SqlServerTable",
+                      "schema": [],
+                      "typeProperties": {
+                        "database": {
+                          "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                          "type": "Expression"
+                        }
+                      },
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "SQLServer TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SQLServer Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('SQLServer Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "postgre_sql",
+              "activities": [
+                {
+                  "name": "PostgreSQL Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "PostgreSqlSource",
+                      "query": {
+                        "value": "SELECT \n    a.column_name AS COLUMN_NAME\n    ,a.data_type AS DATA_TYPE\n   ,a.character_maximum_length AS DATA_LENGTH\n    ,a.numeric_precision AS DATA_PRECISION\n    ,a.numeric_scale AS DATA_SCALE\n    ,a.is_nullable AS NULLABLE\n    ,c.constraint_type AS PRIMARY_KEY\n  FROM information_schema.columns AS a\n  LEFT JOIN information_schema.key_column_usage AS b\n  ON a.table_schema = b.table_schema \n  AND a.table_name = b.table_name\n  AND a.column_name = b.column_name\n  LEFT JOIN information_schema.table_constraints AS c\nON b.constraint_name = c.constraint_name\nAND c.constraint_type = 'PRIMARY KEY'\n WHERE a.table_schema = '@{pipeline().parameters.primary_config.source_details_schema_name}'\n   AND a.table_name   = '@{pipeline().parameters.primary_config.source_details_table_name}'\nORDER BY a.ordinal_position\n",
+                        "type": "Expression"
+                      }
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "PostgreSqlTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "PostgreSQL TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "PostgreSQL Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('PostgreSQL Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "my_sql",
+              "activities": [
+                {
+                  "name": "MySQL Column Metadata",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "MySqlSource",
+                      "query": {
+                        "value": "DESCRIBE @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      }
+                    },
+                    "firstRowOnly": false,
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "MySqlTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "MySQL TableDDL",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "MySQL Column Metadata",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "table_ddl",
+                    "value": {
+                      "value": "@activity('MySQL Column Metadata').output.value",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "defaultActivities": []
+        }
+      },
+      {
+        "name": "TableDDL Output",
+        "type": "SetVariable",
+        "dependsOn": [
+          {
+            "activity": "Connection",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "pipelineReturnValue",
+          "value": [
+            {
+              "key": "table_ddl",
+              "value": {
+                "type": "Expression",
+                "content": "@variables('table_ddl')"
+              }
+            }
+          ],
+          "setSystemVariable": true
+        }
+      }
+    ],
+    "parameters": {
+      "source_details_source": {
+        "type": "string"
+      },
+      "primary_config": {
+        "type": "object"
+      },
+      "source_datastore_config": {
+        "type": "object"
+      }
+    },
+    "variables": {
+      "table_ddl": {
+        "type": "Array",
+        "defaultValue": []
+      }
+    }
+  }
+}

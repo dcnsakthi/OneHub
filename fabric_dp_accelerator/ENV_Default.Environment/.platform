@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Environment",
+    "displayName": "ENV_Default",
+    "description": "Default Runtime 2.0 Spark environment for the Data Platform Accelerator with Native Execution Engine enabled."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "66c31eb3-16ef-8586-4711-07c45f54bf14"
+  }
+}

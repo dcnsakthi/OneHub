@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "VariableLibrary",
+    "displayName": "VL_Core_Workspace_Context",
+    "description": "Core workspace runtime context. Datastore configuration is stored in dbo.Datastore_Configuration table."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "def6db91-8372-8c2e-4c8b-132aa57000e8"
+  }
+}

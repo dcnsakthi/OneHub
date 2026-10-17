@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "NB_Validate_Delta_Table_Parity",
+    "description": "Read-only exact projected equality validation for one source and target Delta table."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f3187136-89f3-99a5-48a9-856a6ab0dc6a"
+  }
+}

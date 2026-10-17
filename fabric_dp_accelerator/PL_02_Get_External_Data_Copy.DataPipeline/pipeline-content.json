@@ -1,0 +1,1606 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Connection",
+        "description": "",
+        "type": "Switch",
+        "dependsOn": [
+          {
+            "activity": "If Full Reload",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "on": {
+            "value": "@concat(\n   pipeline().parameters.primary_config.source_details_source\n   \n   , pipeline().parameters.copy_pattern_suffix\n   \n   , pipeline().parameters.partitioning_option\n\n)",
+            "type": "Expression"
+          },
+          "cases": [
+            {
+              "value": "oracle",
+              "activities": [
+                {
+                  "name": "Oracle Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "OracleSource",
+                      "oracleReaderQuery": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "partitionOption": "None",
+                      "numberPrecision": 38,
+                      "numberScale": 18,
+                      "queryTimeout": "02:00:00",
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "OracleTable",
+                        "schema": [],
+                        "typeProperties": {},
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "db03874a_b1e2_4f94_9737_a2c8e7714b69",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('Oracle Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "azure_sql",
+              "activities": [
+                {
+                  "name": "AzureSQL Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "AzureSqlSource",
+                      "sqlReaderQuery": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None",
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "AzureSqlTable",
+                        "schema": [],
+                        "typeProperties": {
+                          "database": {
+                            "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                            "type": "Expression"
+                          }
+                        },
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "0189dd45_8211_4f4a_9100_87cc8827998a",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Azure SQL rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "AzureSQL Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('AzureSQL Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "AzureSQL Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Azure SQL rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "db2",
+              "activities": [
+                {
+                  "name": "DB2 Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "Db2Source",
+                      "query": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "Db2Table",
+                        "schema": [],
+                        "typeProperties": {},
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "dea974b7_549f_4b90_93b8_127787923df5",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "DB2 rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "DB2 Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('DB2 Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "DB2 Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "DB2 rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "sql_server",
+              "activities": [
+                {
+                  "name": "SQLServer Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "SqlServerSource",
+                      "sqlReaderQuery": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None",
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "SqlServerTable",
+                        "schema": [],
+                        "typeProperties": {
+                          "database": {
+                            "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                            "type": "Expression"
+                          }
+                        },
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "99fcd699_9c87_4122_8c43_eaa973f0e0fc",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "SQLServer rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SQLServer Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('SQLServer Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "SQLServer Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SQLServer rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "postgre_sql",
+              "activities": [
+                {
+                  "name": "PostgreSQL Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "PostgreSqlSource",
+                      "query": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "PostgreSqlTable",
+                        "schema": [],
+                        "typeProperties": {},
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "053856f8_f4f3_44a4_860f_afbdeb448041",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "PostgreSQL rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "PostgreSQL Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('PostgreSQL Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "PostgreSQL Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "PostgreSQL rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "my_sql",
+              "activities": [
+                {
+                  "name": "MySQL Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "MySqlSource",
+                      "query": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "MySqlTable",
+                        "schema": [],
+                        "typeProperties": {},
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "ParquetSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "ParquetWriteSettings",
+                        "enableVertiParquet": false
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "0e94276f_e624_4e55_959c_9523555275dc",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Parquet",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.parquet')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "compressionCodec": "snappy"
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "MySQL rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "MySQL Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('MySQL Copy').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "MySQL Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "MySQL rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "rest_api",
+              "activities": [
+                {
+                  "name": "Extract Data from API",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "RestSource",
+                      "httpRequestTimeout": "00:01:40",
+                      "requestInterval": "00.00:00:00.010",
+                      "requestMethod": "GET",
+                      "paginationRules": {
+                        "AbsoluteUrl": {
+                          "value": "@concat('$.',pipeline().parameters.primary_config.source_details_next_url_path)",
+                          "type": "Expression"
+                        }
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "RestResource",
+                        "typeProperties": {},
+                        "schema": [],
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "JsonSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "JsonWriteSettings"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "1a4860d1_e90a_43db_a83e_df8c7480e964",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Json",
+                        "typeProperties": {
+                          "location": {
+                            "type": "LakehouseLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.json')",
+                              "type": "Expression"
+                            },
+                            "folderPath": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          }
+                        },
+                        "schema": {}
+                      }
+                    },
+                    "enableStaging": false
+                  }
+                },
+                {
+                  "name": "API rows copied - Copy",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Extract Data from API",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('Extract Data from API').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "API Source Details - Copy",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "API rows copied - Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@pipeline().parameters.primary_config.source_details_source",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "sftp",
+              "activities": [
+                {
+                  "name": "SFTP Copy",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "BinarySource",
+                      "storeSettings": {
+                        "type": "SftpReadSettings",
+                        "recursive": false,
+                        "modifiedDatetimeStart": {
+                          "value": "@if(\n  or(\n    equals(pipeline().parameters.full_reload, 'Yes'),\n    less(length(pipeline().parameters.watermark_value), 19)\n  ),\n  '1900-01-01T00:00:00Z',\n  concat(substring(pipeline().parameters.watermark_value,0,10),'T',substring(pipeline().parameters.watermark_value,11,8),'Z')\n)",
+                          "type": "Expression"
+                        },
+                        "wildcardFolderPath": {
+                          "value": "@pipeline().parameters.primary_config.source_details_sftp_wildcard_folder_path",
+                          "type": "Expression"
+                        },
+                        "wildcardFileName": {
+                          "value": "@if(\n  contains(pipeline().parameters.primary_config, 'source_details_sftp_wildcard_file_name'),\n  pipeline().parameters.primary_config.source_details_sftp_wildcard_file_name,\n  '*')",
+                          "type": "Expression"
+                        },
+                        "disableChunking": false
+                      },
+                      "formatSettings": {
+                        "type": "BinaryReadSettings"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "Binary",
+                        "typeProperties": {
+                          "location": {
+                            "type": "SftpLocation"
+                          }
+                        },
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "BinarySink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "5d36b4f7_43b0_4c7a_9046_0b90a37b037b",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "Binary",
+                        "typeProperties": {
+                          "location": {
+                            "type": "LakehouseLocation",
+                            "folderPath": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "enableStaging": false
+                  }
+                },
+                {
+                  "name": "SFTP rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SFTP Copy",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('SFTP Copy').output.filesWritten)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "SFTP Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SFTP rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@if(\n  contains(pipeline().parameters.primary_config, 'source_details_sftp_wildcard_file_name'),\n  concat(pipeline().parameters.primary_config.source_details_sftp_wildcard_folder_path, '/', pipeline().parameters.primary_config.source_details_sftp_wildcard_file_name),\n  pipeline().parameters.primary_config.source_details_sftp_wildcard_folder_path\n)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "oracle_csv",
+              "activities": [
+                {
+                  "name": "Oracle Copy to CSV",
+                  "type": "Copy",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "OracleSource",
+                      "oracleReaderQuery": {
+                        "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                        "type": "Expression"
+                      },
+                      "partitionOption": "None",
+                      "numberPrecision": 38,
+                      "numberScale": 18,
+                      "queryTimeout": "02:00:00",
+                      "datasetSettings": {
+                        "annotations": [],
+                        "type": "OracleTable",
+                        "schema": [],
+                        "typeProperties": {},
+                        "externalReferences": {
+                          "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                        }
+                      }
+                    },
+                    "sink": {
+                      "type": "DelimitedTextSink",
+                      "storeSettings": {
+                        "type": "AzureBlobStorageWriteSettings"
+                      },
+                      "formatSettings": {
+                        "type": "DelimitedTextWriteSettings",
+                        "fileExtension": ".txt"
+                      },
+                      "datasetSettings": {
+                        "annotations": [],
+                        "linkedService": {
+                          "name": "0234362b_85a9_4366_917b_9b6a4212b7d8",
+                          "properties": {
+                            "annotations": [],
+                            "type": "Lakehouse",
+                            "typeProperties": {
+                              "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                              "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                              "rootFolder": "Files"
+                            }
+                          }
+                        },
+                        "type": "DelimitedText",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobStorageLocation",
+                            "fileName": {
+                              "value": "@concat(pipeline().parameters.filename_w_timestamp,'.csv')",
+                              "type": "Expression"
+                            },
+                            "container": {
+                              "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                              "type": "Expression"
+                            }
+                          },
+                          "columnDelimiter": ",",
+                          "encodingName": {
+                            "value": "@if(\n    contains(pipeline().parameters.primary_config, 'source_details_encoding')\n    , pipeline().parameters.primary_config.source_details_encoding\n    ,'UTF-8'\n)",
+                            "type": "Expression"
+                          },
+                          "escapeChar": "\\",
+                          "firstRowAsHeader": true,
+                          "quoteChar": "\""
+                        },
+                        "schema": []
+                      }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                      "type": "TabularTranslator",
+                      "typeConversion": true,
+                      "typeConversionSettings": {
+                        "allowDataTruncation": false,
+                        "treatBooleanAsNumber": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle to CSV rows copied",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle Copy to CSV",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "rows_copied_count",
+                    "value": {
+                      "value": "@string(activity('Oracle Copy to CSV').output.rowsCopied)",
+                      "type": "Expression"
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle to CSV Source Details",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle to CSV rows copied",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "source_details",
+                    "value": {
+                      "value": "@replace(\n        pipeline().parameters.primary_config.source_details_query, '{WATERMARKVALUE}',\n        pipeline().parameters.watermark_value\n        )",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "defaultActivities": [
+            {
+              "name": "Source Does Not Exist",
+              "type": "Fail",
+              "dependsOn": [],
+              "typeProperties": {
+                "message": {
+                  "value": "source_details_source in the Primary Config metadata table does not match any of the cases in the Connection Switch activity of PL_02_Get_External_Data_Copy. Please refer to the accelerator documentation for the list of supported source types.",
+                  "type": "Expression"
+                },
+                "errorCode": "100"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Output",
+        "type": "SetVariable",
+        "dependsOn": [
+          {
+            "activity": "If Convert CSV to Parquet",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "pipelineReturnValue",
+          "value": [
+            {
+              "key": "rows_copied",
+              "value": {
+                "type": "Expression",
+                "content": "@variables('rows_copied_count')"
+              }
+            },
+            {
+              "key": "source_details",
+              "value": {
+                "type": "Expression",
+                "content": "@variables('source_details')"
+              }
+            }
+          ],
+          "setSystemVariable": true
+        }
+      },
+      {
+        "name": "If Full Reload",
+        "type": "IfCondition",
+        "dependsOn": [],
+        "typeProperties": {
+          "expression": {
+            "value": "@equals(pipeline().parameters.full_reload, 'Yes')",
+            "type": "Expression"
+          },
+          "ifFalseActivities": [],
+          "ifTrueActivities": [
+            {
+              "name": "Archive Previously Ingested Data",
+              "type": "Copy",
+              "dependsOn": [],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "source": {
+                  "type": "BinarySource",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageReadSettings",
+                    "recursive": false,
+                    "wildcardFolderPath": {
+                      "value": "@concat(\n  replace(\n    concat(pipeline().parameters.primary_config.source_details_staging_folder_path, '/'),\n    '//',\n    '/'\n  ),\n  '*/'\n)",
+                      "type": "Expression"
+                    },
+                    "wildcardFileName": "*",
+                    "deleteFilesAfterCompletion": true
+                  },
+                  "formatSettings": {
+                    "type": "BinaryReadSettings"
+                  },
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "77ae3c08_2e56_42dd_94fe_4b15d1a59140",
+                      "properties": {
+                        "annotations": [],
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                          "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                          "rootFolder": "Files"
+                        }
+                      }
+                    },
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation"
+                      }
+                    }
+                  }
+                },
+                "sink": {
+                  "type": "BinarySink",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageWriteSettings",
+                    "copyBehavior": "PreserveHierarchy"
+                  },
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "0f606fcf_76e5_4dca_82a1_1226d824dc43",
+                      "properties": {
+                        "annotations": [],
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                          "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                          "rootFolder": "Files"
+                        }
+                      }
+                    },
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation",
+                        "folderPath": {
+                          "value": "@concat(\n  replace(\n    concat(pipeline().parameters.primary_config.source_details_staging_folder_path, '/'),\n    '//',\n    '/'\n  ),\n  'Archived_FullReload_',\n  formatDateTime(utcnow(), 'yyyyMMddHHmmss'),\n  '/'\n)",
+                          "type": "Expression"
+                        }
+                      }
+                    }
+                  }
+                },
+                "enableStaging": false
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "If Convert CSV to Parquet",
+        "type": "IfCondition",
+        "dependsOn": [
+          {
+            "activity": "Connection",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "expression": {
+            "value": "@if(\n    contains(pipeline().parameters.primary_config, 'source_details_convert_csv_to_parquet')\n    , pipeline().parameters.primary_config.source_details_convert_csv_to_parquet\n    ,false\n)",
+            "type": "Expression"
+          },
+          "ifFalseActivities": [],
+          "ifTrueActivities": [
+            {
+              "name": "Convert CSV to Parquet",
+              "type": "Copy",
+              "dependsOn": [],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "source": {
+                  "type": "DelimitedTextSource",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageReadSettings",
+                    "recursive": false,
+                    "wildcardFolderPath": {
+                      "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                      "type": "Expression"
+                    },
+                    "wildcardFileName": "*.csv",
+                    "enablePartitionDiscovery": false
+                  },
+                  "formatSettings": {
+                    "type": "DelimitedTextReadSettings"
+                  },
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "25039fbf_24bd_438a_b820_bb319dc85718",
+                      "properties": {
+                        "annotations": [],
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                          "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                          "rootFolder": "Files"
+                        }
+                      }
+                    },
+                    "type": "DelimitedText",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation"
+                      },
+                      "columnDelimiter": ",",
+                      "encodingName": {
+                        "value": "@if(\n    contains(pipeline().parameters.primary_config, 'source_details_encoding')\n    , pipeline().parameters.primary_config.source_details_encoding\n    ,'UTF-8'\n)",
+                        "type": "Expression"
+                      },
+                      "escapeChar": "\\",
+                      "firstRowAsHeader": true,
+                      "quoteChar": "\""
+                    },
+                    "schema": []
+                  }
+                },
+                "sink": {
+                  "type": "ParquetSink",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageWriteSettings"
+                  },
+                  "formatSettings": {
+                    "type": "ParquetWriteSettings",
+                    "enableVertiParquet": false
+                  },
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "b1b3f66f_bed3_4812_b7a8_fff85ed2cd0e",
+                      "properties": {
+                        "annotations": [],
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                          "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                          "rootFolder": "Files"
+                        }
+                      }
+                    },
+                    "type": "Parquet",
+                    "typeProperties": {
+                      "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "container": {
+                          "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                          "type": "Expression"
+                        }
+                      },
+                      "compressionCodec": "snappy"
+                    },
+                    "schema": []
+                  }
+                },
+                "enableStaging": false,
+                "translator": {
+                  "type": "TabularTranslator",
+                  "typeConversion": true,
+                  "typeConversionSettings": {
+                    "allowDataTruncation": false,
+                    "treatBooleanAsNumber": false
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete CSV",
+              "type": "Delete",
+              "dependsOn": [
+                {
+                  "activity": "Convert CSV to Parquet",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "datasetSettings": {
+                  "annotations": [],
+                  "linkedService": {
+                    "name": "7c80f869_bb4f_4ca7_a463_0d479ea0780a",
+                    "properties": {
+                      "annotations": [],
+                      "type": "Lakehouse",
+                      "typeProperties": {
+                        "workspaceId": "@pipeline().parameters.target_datastore_config['Workspace_ID']",
+                        "artifactId": "@pipeline().parameters.target_datastore_config['Datastore_ID']",
+                        "rootFolder": "Files"
+                      }
+                    }
+                  },
+                  "type": "Binary",
+                  "typeProperties": {
+                    "location": {
+                      "type": "LakehouseLocation",
+                      "folderPath": {
+                        "value": "@pipeline().parameters.folderpath_w_ingestion_type",
+                        "type": "Expression"
+                      }
+                    }
+                  }
+                },
+                "enableLogging": false,
+                "storeSettings": {
+                  "type": "AzureBlobStorageReadSettings",
+                  "recursive": false,
+                  "wildcardFileName": "*.csv",
+                  "enablePartitionDiscovery": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "parameters": {
+      "primary_config": {
+        "type": "object"
+      },
+      "watermark_value": {
+        "type": "string"
+      },
+      "folderpath_w_ingestion_type": {
+        "type": "string"
+      },
+      "filename_w_timestamp": {
+        "type": "string"
+      },
+      "partitioning_option": {
+        "type": "string"
+      },
+      "target_datastore_config": {
+        "type": "object"
+      },
+      "staging_lakehouse_name": {
+        "type": "string"
+      },
+      "full_reload": {
+        "type": "string"
+      },
+      "source_datastore_config": {
+        "type": "object"
+      },
+      "data_product_context": {
+        "type": "object"
+      },
+      "orchestration_config": {
+        "type": "object"
+      },
+      "copy_pattern_suffix": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "rows_copied_count": {
+        "type": "String"
+      },
+      "source_details": {
+        "type": "String"
+      }
+    }
+  }
+}

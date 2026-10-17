@@ -1,0 +1,192 @@
+table Data_Quality_Notifications
+	lineageTag: 6a347c94-9697-4045-ab24-6d4782abe8bc
+	sourceLineageTag: [dbo].[Data_Quality_Notifications]
+
+	column 'Log ID'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: cf701c8d-a0da-4b46-9f71-76d7c09bf2b3
+		sourceLineageTag: Log_ID
+		summarizeBy: none
+		sourceColumn: Log_ID
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Table ID'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 2e74aabe-139c-4b51-9f0b-b98fa364a15c
+		sourceLineageTag: Table_ID
+		summarizeBy: count
+		sourceColumn: Table_ID
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Table Name'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: fd31395d-8598-46a6-a904-e3c92a67614b
+		sourceLineageTag: Table_Name
+		summarizeBy: none
+		sourceColumn: Table_Name
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Quality Category'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: deec34b8-cb31-4afd-83d5-9b908f96201b
+		sourceLineageTag: Data_Quality_Category
+		summarizeBy: none
+		sourceColumn: Data_Quality_Category
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Quality Result'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 7cbe244b-b201-4cfc-89a4-b3edb3abfc00
+		sourceLineageTag: Data_Quality_Result
+		summarizeBy: none
+		sourceColumn: Data_Quality_Result
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Quality Message'
+		dataType: string
+		sourceProviderType: varchar(8000)
+		lineageTag: 1a1e608f-0d77-4303-90bd-8c65d9b8547c
+		sourceLineageTag: Data_Quality_Message
+		summarizeBy: none
+		sourceColumn: Data_Quality_Message
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Quarantined'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 1ed2ead3-7f48-41ce-9c52-1230a8115881
+		sourceLineageTag: Data_Quarantined
+		summarizeBy: none
+		sourceColumn: Data_Quarantined
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ingestion Start Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 68f23c28-2ffc-479e-ba2f-f607167c1170
+		sourceLineageTag: Ingestion_Start_Time
+		summarizeBy: none
+		sourceColumn: Ingestion_Start_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ingestion End Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 794708fe-88b7-42c5-937a-fa06de537ce2
+		sourceLineageTag: Ingestion_End_Time
+		summarizeBy: none
+		sourceColumn: Ingestion_End_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fabric Monitor URL'
+		dataType: string
+		sourceProviderType: varchar(500)
+		lineageTag: 75d03d72-bf83-4164-aabb-36b0aff19a9b
+		sourceLineageTag: Fabric_Monitor_URL
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: Fabric_Monitor_URL
+
+		changedProperty = Name
+
+		changedProperty = DataCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_Key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: cb6ad007-2c13-4159-bdc9-c4ef0381d4cb
+		sourceLineageTag: Date_Key
+		summarizeBy: none
+		sourceColumn: Date_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rows Quarantined'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: 924f5b27-6b3c-4975-b779-0ee47c844d26
+		sourceLineageTag: Rows_Quarantined
+		summarizeBy: sum
+		sourceColumn: Rows_Quarantined
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rows Impacted'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: e13e6789-a5bc-4a26-9ab4-0993427dc648
+		sourceLineageTag: Rows_Impacted
+		summarizeBy: sum
+		sourceColumn: Rows_Impacted
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Datastore
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: cb29922e-eccf-483e-ae25-bb187ad2b8cb
+		sourceLineageTag: Datastore_Name
+		summarizeBy: none
+		sourceColumn: Datastore_Name
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data_Quality_Notifications = entity
+		mode: directLake
+		source
+			entityName: Data_Quality_Notifications
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

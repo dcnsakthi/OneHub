@@ -1,0 +1,54 @@
+table Data_Pipeline_Metadata_Primary_Configuration
+	lineageTag: 0da954c6-16b6-4352-b337-d1b7c389bae7
+	sourceLineageTag: [dbo].[Data_Pipeline_Metadata_Primary_Configuration]
+
+	column Table_ID
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 629604bc-7f8a-4adb-b40f-ed9979f25708
+		sourceLineageTag: Table_ID
+		summarizeBy: none
+		sourceColumn: Table_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Configuration_Category
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: e8c3f888-9b38-48cb-8a64-7f65b4192afd
+		sourceLineageTag: Configuration_Category
+		summarizeBy: none
+		sourceColumn: Configuration_Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Configuration_Name
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 00cde78c-9bf6-4a9b-bc87-f13fe803b7c8
+		sourceLineageTag: Configuration_Name
+		summarizeBy: none
+		sourceColumn: Configuration_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Configuration_Value
+		dataType: string
+		sourceProviderType: varchar(8000)
+		lineageTag: aea96f48-48ab-4503-add8-ec4e2dcd1cf6
+		sourceLineageTag: Configuration_Value
+		summarizeBy: none
+		sourceColumn: Configuration_Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data_Pipeline_Metadata_Primary_Configuration = entity
+		mode: directLake
+		source
+			entityName: Data_Pipeline_Metadata_Primary_Configuration
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

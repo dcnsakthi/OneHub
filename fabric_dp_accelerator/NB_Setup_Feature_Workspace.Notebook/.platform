@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "NB_Setup_Feature_Workspace",
+    "description": "One-click feature workspace setup: discovers artifacts, updates FeatureWorkspaceConfig variable overrides, and executes datastore + metadata SQL notebooks."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "69e01d26-5947-a97b-431d-18fd52bcb3c5"
+  }
+}

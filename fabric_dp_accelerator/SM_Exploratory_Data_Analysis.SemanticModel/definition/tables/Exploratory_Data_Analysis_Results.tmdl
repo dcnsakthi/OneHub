@@ -1,0 +1,425 @@
+table Exploratory_Data_Analysis_Results
+	lineageTag: 7b60fb89-f03d-4539-9099-81cdd9866482
+	sourceLineageTag: [dbo].[Exploratory_Data_Analysis_Results]
+
+	measure 'Total Rows After Last Refesh' =
+			CALCULATE(
+			   MAX(Exploratory_Data_Analysis_Results[Total Rows]),
+			   FILTER(
+			       Exploratory_Data_Analysis_Results,
+			       Exploratory_Data_Analysis_Results[Data Profile Execution Time] =
+			       CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time]), ALLEXCEPT(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Table ID]))
+			   )
+			)
+		formatString: #,0
+		lineageTag: d31073ca-914b-4274-97cd-ccb90e683af6
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Total Columns After Last Refesh' =
+			CALCULATE(
+			   MAX(Exploratory_Data_Analysis_Results[Total Columns]),
+			   FILTER(
+			       Exploratory_Data_Analysis_Results,
+			       Exploratory_Data_Analysis_Results[Data Profile Execution Time] =
+			       CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time]), ALLEXCEPT(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Table ID]))
+			   )
+			)
+		formatString: #,0
+		lineageTag: fe87023a-a546-4c34-9960-8542edfe52a9
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Null Count For Last Refesh' =
+			CALCULATE(
+			   SUM(Exploratory_Data_Analysis_Results[Null Count]),
+			   FILTER(
+			       Exploratory_Data_Analysis_Results,
+			       Exploratory_Data_Analysis_Results[Data Profile Execution Time] =
+			       CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time]), ALLEXCEPT(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Table ID]))
+			   )
+			)
+		formatString: #,0
+		lineageTag: 100f2e7f-cf35-4d4a-b95d-6886dcd6107f
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Approx Distinct Values After Last Refesh' =
+			CALCULATE(
+			   MAX(Exploratory_Data_Analysis_Results[Approx Distinct Values]),
+			   FILTER(
+			       Exploratory_Data_Analysis_Results,
+			       Exploratory_Data_Analysis_Results[Data Profile Execution Time] =
+			       CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time]), ALLEXCEPT(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Table ID]))
+			   )
+			)
+		formatString: #,0
+		lineageTag: 3e6a6a60-ddef-4581-956f-fb094ed3b95a
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Columns After Last Refesh' =
+			CALCULATE(
+			   COUNT(Exploratory_Data_Analysis_Results[Column Name]),
+			   FILTER(
+			       Exploratory_Data_Analysis_Results,
+			       Exploratory_Data_Analysis_Results[Data Profile Execution Time] =
+			       CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time]), ALLEXCEPT(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Table ID]))
+			   )
+			)
+		formatString: #,0
+		lineageTag: e5b751ed-dc95-4582-92ea-79c9ea3c4159
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure Rows = ```
+			
+			SUMX(
+			   SUMMARIZE(
+			       Exploratory_Data_Analysis_Results, 
+			       Exploratory_Data_Analysis_Results[Table ID],
+			       "MaxRows", CALCULATE(
+			            MAX(Exploratory_Data_Analysis_Results[Total Rows]),
+			            Filter(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Data Profile Execution Time] = CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time])))
+			        )
+			   ),
+			   [MaxRows]
+			)
+			
+			
+			
+			```
+		formatString: #,0
+		lineageTag: 5b5a4ef4-4a11-4287-a82b-ddf842bf4e22
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Null Percent for Table' = ```
+			
+			SUMX(
+			   SUMMARIZE(
+			       Exploratory_Data_Analysis_Results, 
+			       Exploratory_Data_Analysis_Results[Table ID],
+			       "NullPercent", CALCULATE(
+			            SUM(Exploratory_Data_Analysis_Results[Null Count])/SUM(Exploratory_Data_Analysis_Results[Total Rows]),
+			            Filter(Exploratory_Data_Analysis_Results, Exploratory_Data_Analysis_Results[Data Profile Execution Time] = CALCULATE(MAX(Exploratory_Data_Analysis_Results[Data Profile Execution Time])))
+			        )
+			   ),
+			   [NullPercent]
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d1438084-1dc9-446f-87c7-af13dd5c3562
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure 'Null Percent for Table and Date' = ```
+			SUM(Exploratory_Data_Analysis_Results[Null Count])/SUM(Exploratory_Data_Analysis_Results[Total Rows])
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 25519a1c-2bf4-4b17-b139-2da3f35c1e74
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	column 'Table ID'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 613bbc4f-d811-47e4-82f0-21da33cb278d
+		sourceLineageTag: Table_ID
+		summarizeBy: none
+		sourceColumn: Table_ID
+
+		changedProperty = Name
+
+		changedProperty = IsHidden
+
+		changedProperty = SummarizeBy
+
+		annotation SummarizationSetBy = User
+
+	column 'Table Name'
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: dd72521f-8405-445d-9b5e-79582602341a
+		sourceLineageTag: Table_Name
+		summarizeBy: none
+		sourceColumn: Table_Name
+
+		changedProperty = Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Column Name'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: efd4757c-0373-461a-b3e6-14da1f869f40
+		sourceLineageTag: Column_Name
+		summarizeBy: none
+		sourceColumn: Column_Name
+
+		changedProperty = Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Type'
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 46fffa34-2826-4960-8343-51ebc3dcffda
+		sourceLineageTag: Data_Type
+		summarizeBy: none
+		sourceColumn: Data_Type
+
+		changedProperty = Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Rows'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: c2244e2b-3034-4a85-9fe8-1a1b9cf08fbc
+		sourceLineageTag: Total_Rows
+		summarizeBy: sum
+		sourceColumn: Total_Rows
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Columns'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: 6bc94f3b-3dfd-4b09-aeff-748d68173088
+		sourceLineageTag: Total_Columns
+		summarizeBy: sum
+		sourceColumn: Total_Columns
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Approx Distinct Values'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: 34ebcb74-0987-499f-871e-4ed5df9699dd
+		sourceLineageTag: Approx_Distinct_Values
+		summarizeBy: sum
+		sourceColumn: Approx_Distinct_Values
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Null Count'
+		dataType: int64
+		formatString: #,0
+		sourceProviderType: int
+		lineageTag: ad61978a-b2e6-4b96-9b89-8e1580d6c3f7
+		sourceLineageTag: Null_Count
+		summarizeBy: sum
+		sourceColumn: Null_Count
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Null Percent'
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		sourceProviderType: decimal(20, 4)
+		lineageTag: 857267d9-694a-41a9-9aa1-a35647fbd394
+		sourceLineageTag: Null_Percent
+		summarizeBy: sum
+		sourceColumn: Null_Percent
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mean
+		dataType: double
+		formatString: #,0.00
+		sourceProviderType: decimal(20, 4)
+		lineageTag: be75ba47-411e-4995-9f17-daf3ba4fef49
+		sourceLineageTag: Mean
+		summarizeBy: sum
+		sourceColumn: Mean
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Std Dev'
+		dataType: double
+		formatString: #,0.00
+		sourceProviderType: decimal(20, 4)
+		lineageTag: 464a7052-14d0-4784-995e-d4931effa3e9
+		sourceLineageTag: Std_Dev
+		summarizeBy: sum
+		sourceColumn: Std_Dev
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Min
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: e9768934-75fa-41f8-bbbc-77f94f851a6a
+		sourceLineageTag: Min
+		summarizeBy: none
+		sourceColumn: Min
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Max
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: 4fbc93cd-6f2c-4cc1-8ac4-c569c8b40ff8
+		sourceLineageTag: Max
+		summarizeBy: none
+		sourceColumn: Max
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Table Last Modified Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 6d92ea75-6ec5-4009-b61a-344db5ae7a6e
+		sourceLineageTag: Table_Last_Modified_Time
+		summarizeBy: none
+		sourceColumn: Table_Last_Modified_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Profile Execution Time'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 208cc0ab-ff95-441a-affd-6808726fcf97
+		sourceLineageTag: Data_Profile_Execution_Time
+		summarizeBy: none
+		sourceColumn: Data_Profile_Execution_Time
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_Key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 0e579b9f-9a11-4316-ac70-69816d14d7c4
+		sourceLineageTag: Date_Key
+		summarizeBy: none
+		sourceColumn: Date_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Datastore
+		dataType: string
+		sourceProviderType: varchar(255)
+		lineageTag: f1d7652d-9a37-43f0-8103-4a5751bff6be
+		sourceLineageTag: Datastore_Name
+		summarizeBy: none
+		sourceColumn: Datastore_Name
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Type
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 48cfae06-5daf-46f4-ba72-2fba62051f46
+		sourceLineageTag: Target_Type
+		summarizeBy: none
+		sourceColumn: Target_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Medallion_Layer
+		dataType: string
+		sourceProviderType: varchar(50)
+		lineageTag: 4496ff3b-6c8d-4fbb-a04f-3ce40dbb33b3
+		sourceLineageTag: Target_Medallion_Layer
+		summarizeBy: none
+		sourceColumn: Target_Medallion_Layer
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Exploratory_Data_Analysis_Results = entity
+		mode: directLake
+		source
+			entityName: Exploratory_Data_Analysis_Results
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+

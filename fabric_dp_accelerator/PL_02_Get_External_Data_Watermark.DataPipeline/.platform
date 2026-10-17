@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "PL_02_Get_External_Data_Watermark",
+    "description": ""
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "d2f8bcb9-4882-80e0-4e50-5f8b6a3b565f"
+  }
+}

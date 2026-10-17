@@ -1,0 +1,341 @@
+table Data_Pipeline_Lineage
+	lineageTag: e9cc6abe-f8bb-48d5-977e-2931c6adbbd0
+	sourceLineageTag: [dbo].[Data_Pipeline_Lineage]
+
+	column Lineage_ID
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 458f9e27-5286-4172-a51f-57d641d6c769
+		sourceLineageTag: Lineage_ID
+		summarizeBy: none
+		sourceColumn: Lineage_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Trigger_Name
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: dedaa858-7f09-4d8f-a417-a34e4735a1f6
+		sourceLineageTag: Trigger_Name
+		summarizeBy: none
+		sourceColumn: Trigger_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Entity
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 47114082-56e6-46d4-98c5-967f5be3e45b
+		sourceLineageTag: Source_Entity
+		summarizeBy: none
+		sourceColumn: Source_Entity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Datastore
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 50b340d0-fdf0-4528-9252-8948b23f24e0
+		sourceLineageTag: Source_Datastore
+		summarizeBy: none
+		sourceColumn: Source_Datastore
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Medallion_Layer
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 196c8e81-4979-4285-8379-faced0835ef5
+		sourceLineageTag: Source_Medallion_Layer
+		summarizeBy: none
+		sourceColumn: Source_Medallion_Layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Entity
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 9165a229-2962-4433-8d54-f1a8430d92c2
+		sourceLineageTag: Target_Entity
+		summarizeBy: none
+		sourceColumn: Target_Entity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Datastore
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 47be0e52-151b-403e-8281-eb1442b3c391
+		sourceLineageTag: Target_Datastore
+		summarizeBy: none
+		sourceColumn: Target_Datastore
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Medallion_Layer
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 74024d75-2552-458d-a580-40e57eb4fd8e
+		sourceLineageTag: Target_Medallion_Layer
+		summarizeBy: none
+		sourceColumn: Target_Medallion_Layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Relationship_Type
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 5c79df79-b8f9-4c4c-bea0-86e8603f174f
+		sourceLineageTag: Relationship_Type
+		summarizeBy: none
+		sourceColumn: Relationship_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transformation_Applied
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 6a758f86-2920-4003-95ce-264646c739c0
+		sourceLineageTag: Transformation_Applied
+		summarizeBy: none
+		sourceColumn: Transformation_Applied
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Depth
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: bd4edd5f-b093-466b-8c85-61e6ff08b329
+		sourceLineageTag: Lineage_Depth
+		summarizeBy: sum
+		sourceColumn: Lineage_Depth
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Path
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 956237e8-0483-4eab-9db7-8c04f0b11184
+		sourceLineageTag: Lineage_Path
+		summarizeBy: none
+		sourceColumn: Lineage_Path
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Generated_At
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: eec1ad60-dd6d-4aba-b8fe-273962caef54
+		sourceLineageTag: Lineage_Generated_At
+		summarizeBy: none
+		sourceColumn: Lineage_Generated_At
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Version
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 02f82ccf-02ab-41df-814f-0d07a483c7e5
+		sourceLineageTag: Lineage_Version
+		summarizeBy: sum
+		sourceColumn: Lineage_Version
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date_Key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 1ebcb1f7-9af6-4d37-ae38-4ef29d3b9409
+		sourceLineageTag: Date_Key
+		summarizeBy: count
+		sourceColumn: Date_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Type
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 2524ba80-ef87-4e29-a50a-bfba1efdf75f
+		sourceLineageTag: Source_Type
+		summarizeBy: none
+		sourceColumn: Source_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Type
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 302757a6-a365-4008-bc24-1f3cc3144acb
+		sourceLineageTag: Target_Type
+		summarizeBy: none
+		sourceColumn: Target_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Is_Cross_Trigger
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		sourceProviderType: bit
+		lineageTag: 159e33f6-dae6-454c-a5ba-f54cd3a6efd8
+		sourceLineageTag: Is_Cross_Trigger
+		summarizeBy: none
+		sourceColumn: Is_Cross_Trigger
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cross_Trigger_Dependencies
+		dataType: string
+		sourceProviderType: varchar(1000)
+		lineageTag: c12f9efb-7b34-46a3-b2a8-bd427e0e22b8
+		sourceLineageTag: Cross_Trigger_Dependencies
+		summarizeBy: none
+		sourceColumn: Cross_Trigger_Dependencies
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Summary
+		dataType: string
+		sourceProviderType: varchar(1000)
+		lineageTag: f846b2d6-54f0-4f4a-a2cd-04d4d4c79f06
+		sourceLineageTag: Lineage_Summary
+		summarizeBy: none
+		sourceColumn: Lineage_Summary
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Lineage_Narrative
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 312ba971-2d41-43e1-936e-6c0f51c55105
+		sourceLineageTag: Source_Lineage_Narrative
+		summarizeBy: none
+		sourceColumn: Source_Lineage_Narrative
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Lineage_Narrative
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: 09c64694-d45e-4d72-a5f1-2c34a73f68a1
+		sourceLineageTag: Target_Lineage_Narrative
+		summarizeBy: none
+		sourceColumn: Target_Lineage_Narrative
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Table_ID
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: c4ccf1e7-f8b7-4faa-bfe6-8a5970c4184f
+		sourceLineageTag: Source_Table_ID
+		summarizeBy: none
+		sourceColumn: Source_Table_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Table_ID
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 53b516bd-05c8-477b-9279-b2f0d0502e9e
+		sourceLineageTag: Target_Table_ID
+		summarizeBy: none
+		sourceColumn: Target_Table_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Workspace_Name
+		dataType: string
+		sourceProviderType: varchar(500)
+		lineageTag: 00b8b3cb-7ba5-4097-a411-36827c83eb02
+		sourceLineageTag: Source_Workspace_Name
+		summarizeBy: none
+		sourceColumn: Source_Workspace_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_ABFSS_Path
+		dataType: string
+		sourceProviderType: varchar(2000)
+		lineageTag: 9f5b0771-1cce-4bfe-a7cc-1cb0c9a07567
+		sourceLineageTag: Source_ABFSS_Path
+		summarizeBy: none
+		sourceColumn: Source_ABFSS_Path
+
+		annotation SummarizationSetBy = Automatic
+
+	column Source_Connection_ID
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 72cefb82-dc07-40c4-8830-eae80874fa90
+		sourceLineageTag: Source_Connection_ID
+		summarizeBy: none
+		sourceColumn: Source_Connection_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Workspace_Name
+		dataType: string
+		sourceProviderType: varchar(500)
+		lineageTag: b1dc5345-131d-476c-a385-7d785d0d52d7
+		sourceLineageTag: Target_Workspace_Name
+		summarizeBy: none
+		sourceColumn: Target_Workspace_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_ABFSS_Path
+		dataType: string
+		sourceProviderType: varchar(2000)
+		lineageTag: d98045b9-ed9b-4751-a225-6e6b188e53c8
+		sourceLineageTag: Target_ABFSS_Path
+		summarizeBy: none
+		sourceColumn: Target_ABFSS_Path
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Group_ID
+		dataType: string
+		sourceProviderType: varchar(20)
+		lineageTag: 2bf14a6b-54c8-43b6-9d9d-7ac7b1991ca4
+		sourceLineageTag: Lineage_Group_ID
+		summarizeBy: none
+		sourceColumn: Lineage_Group_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Group_Table_Count
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 69178f88-6e28-476c-acc5-0607e53f810c
+		sourceLineageTag: Lineage_Group_Table_Count
+		summarizeBy: sum
+		sourceColumn: Lineage_Group_Table_Count
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lineage_Group_Narrative
+		dataType: string
+		sourceProviderType: varchar(-1)
+		lineageTag: fa037685-8b4b-4af0-bf86-893367f253c8
+		sourceLineageTag: Lineage_Group_Narrative
+		summarizeBy: none
+		sourceColumn: Lineage_Group_Narrative
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data_Pipeline_Lineage = entity
+		mode: directLake
+		source
+			entityName: Data_Pipeline_Lineage
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

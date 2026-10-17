@@ -1,0 +1,5 @@
+relationship f3a81f18-a2dd-b497-1ad8-3160a2530bb4
+	relyOnReferentialIntegrity
+	fromColumn: Exploratory_Data_Analysis_Results.Date_Key
+	toColumn: Date_Dimension.Date_Key
+

@@ -1,0 +1,412 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Get Exploratory Analysis Input",
+        "type": "Lookup",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderStoredProcedureName": {
+              "value": "[dbo].[Get_Exploratory_Analysis_Input]",
+              "type": "Expression"
+            },
+            "storedProcedureParameters": {
+              "data_product_key": {
+                "type": "String",
+                "value": {
+                  "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                  "type": "Expression"
+                }
+              },
+              "trigger_name": {
+                "type": "String",
+                "value": {
+                  "value": "@pipeline().parameters.trigger_name",
+                  "type": "Expression"
+                }
+              }
+            },
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None"
+          },
+          "firstRowOnly": false,
+          "datasetSettings": {
+            "annotations": [],
+            "linkedService": {
+              "name": "09f71ef1_482f_4203_902d_b020dda0a5fb",
+              "properties": {
+                "annotations": [],
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "endpoint": "@pipeline().parameters.data_product_context.Warehouse_Endpoint",
+                  "artifactId": "@pipeline().parameters.data_product_context.Warehouse_ID",
+                  "workspaceId": "@pipeline().parameters.data_product_context.Workspace_ID"
+                }
+              }
+            },
+            "type": "DataWarehouseTable",
+            "schema": [],
+            "typeProperties": {}
+          }
+        }
+      },
+      {
+        "name": "If Exploratory Analysis Needed",
+        "type": "IfCondition",
+        "dependsOn": [
+          {
+            "activity": "Get Exploratory Analysis Input",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Get Datastore Config",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "expression": {
+            "value": "@not(equals(activity('Get Exploratory Analysis Input').output.count , 0))",
+            "type": "Expression"
+          },
+          "ifFalseActivities": [],
+          "ifTrueActivities": [
+            {
+              "name": "Run Exploratory Analysis",
+              "type": "TridentNotebook",
+              "dependsOn": [],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "notebookId": {
+                  "value": "@pipeline().libraryVariables.notebook_id_exploratory_data_analysis",
+                  "type": "Expression"
+                },
+                "workspaceId": {
+                  "value": "@pipeline().libraryVariables.spark_compute_workspace_id",
+                  "type": "Expression"
+                },
+                "parameters": {
+                  "table_details": {
+                    "value": {
+                      "value": "@string(activity('Get Exploratory Analysis Input').output.value)",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "trigger_name": {
+                    "value": {
+                      "value": "@pipeline().parameters.trigger_name",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "data_product_key": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "datastore_config": {
+                    "value": {
+                      "value": "@string(activity('Get Datastore Config').output.value)",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "default_lakehouse_name": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Lakehouse_Name",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "default_lakehouse_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Lakehouse_ID",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "default_lakehouse_workspace_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Workspace_ID",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "metadata_lakehouse_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Lakehouse_ID",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "metadata_lakehouse_workspace_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.data_product_context.Workspace_ID",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "name": "Copy Temp Files to Metadata Table",
+              "type": "Copy",
+              "dependsOn": [
+                {
+                  "activity": "Run Exploratory Analysis",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "source": {
+                  "type": "ParquetSource",
+                  "storeSettings": {
+                    "type": "LakehouseReadSettings",
+                    "recursive": false,
+                    "wildcardFolderPath": {
+                      "value": "@json(activity('Run Exploratory Analysis').output.result.exitValue).folder_path",
+                      "type": "Expression"
+                    },
+                    "wildcardFileName": "*.parquet",
+                    "enablePartitionDiscovery": false
+                  },
+                  "formatSettings": {
+                    "type": "ParquetReadSettings"
+                  },
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "44830662_75fa_439f_8fd7_8b0f383e3f4a",
+                      "properties": {
+                        "annotations": [],
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "workspaceId": "@pipeline().parameters.data_product_context.Workspace_ID",
+                          "artifactId": "@pipeline().parameters.data_product_context.Lakehouse_ID",
+                          "rootFolder": "Files"
+                        }
+                      }
+                    },
+                    "type": "Parquet",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation"
+                      },
+                      "compressionCodec": "snappy"
+                    },
+                    "schema": []
+                  }
+                },
+                "sink": {
+                  "type": "DataWarehouseSink",
+                  "allowCopyCommand": true,
+                  "copyCommandSettings": {},
+                  "datasetSettings": {
+                    "annotations": [],
+                    "linkedService": {
+                      "name": "467c0524_f561_4d83_91bd_1d8a3fc3d30b",
+                      "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                          "endpoint": "@pipeline().libraryVariables.central_metadata_warehouse_endpoint",
+                          "artifactId": "@pipeline().libraryVariables.central_metadata_warehouse_id",
+                          "workspaceId": "@pipeline().libraryVariables.central_metadata_workspace_id"
+                        }
+                      }
+                    },
+                    "type": "DataWarehouseTable",
+                    "schema": [],
+                    "typeProperties": {
+                      "schema": "dbo",
+                      "table": "Exploratory_Data_Analysis_Results"
+                    }
+                  }
+                },
+                "enableStaging": true,
+                "translator": {
+                  "type": "TabularTranslator",
+                  "typeConversion": true,
+                  "typeConversionSettings": {
+                    "allowDataTruncation": true,
+                    "treatBooleanAsNumber": false
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Temp Files",
+              "type": "Delete",
+              "dependsOn": [
+                {
+                  "activity": "Copy Temp Files to Metadata Table",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ],
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "datasetSettings": {
+                  "annotations": [],
+                  "linkedService": {
+                    "name": "dfeef973_fb07_4493_ad6d_d7c8aeb2578b",
+                    "properties": {
+                      "annotations": [],
+                      "type": "Lakehouse",
+                      "typeProperties": {
+                        "workspaceId": "@pipeline().parameters.data_product_context.Workspace_ID",
+                        "artifactId": "@pipeline().parameters.data_product_context.Lakehouse_ID",
+                        "rootFolder": "Files"
+                      }
+                    }
+                  },
+                  "type": "Binary",
+                  "typeProperties": {
+                    "location": {
+                      "type": "LakehouseLocation",
+                      "folderPath": {
+                        "value": "@json(activity('Run Exploratory Analysis').output.result.exitValue).folder_path",
+                        "type": "Expression"
+                      }
+                    }
+                  }
+                },
+                "enableLogging": false,
+                "storeSettings": {
+                  "type": "LakehouseReadSettings",
+                  "recursive": false,
+                  "enablePartitionDiscovery": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Get Datastore Config",
+        "type": "Lookup",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "queryTimeout": "02:00:00",
+            "partitionOption": "None"
+          },
+          "firstRowOnly": false,
+          "datasetSettings": {
+            "annotations": [],
+            "linkedService": {
+              "name": "115b74f6_f1cb_4634_a74a_617dabe022d2",
+              "properties": {
+                "annotations": [],
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "endpoint": "@pipeline().parameters.data_product_context.Warehouse_Endpoint",
+                  "artifactId": "@pipeline().parameters.data_product_context.Warehouse_ID",
+                  "workspaceId": "@pipeline().parameters.data_product_context.Workspace_ID"
+                }
+              }
+            },
+            "type": "DataWarehouseTable",
+            "schema": [],
+            "typeProperties": {
+              "schema": {
+                "value": "dbo",
+                "type": "Expression"
+              },
+              "table": {
+                "value": "Datastore_Configuration",
+                "type": "Expression"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "trigger_name": {
+        "type": "string"
+      },
+      "data_product_context": {
+        "type": "object"
+      }
+    },
+    "variables": {
+      "workspace_variables": {
+        "type": "String"
+      }
+    },
+    "libraryVariables": {
+      "central_metadata_workspace_id": {
+        "type": "String",
+        "variableName": "central_metadata_workspace_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_warehouse_id": {
+        "type": "String",
+        "variableName": "central_metadata_warehouse_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_warehouse_endpoint": {
+        "type": "String",
+        "variableName": "central_metadata_warehouse_endpoint",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "spark_compute_workspace_id": {
+        "type": "String",
+        "variableName": "spark_compute_workspace_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "notebook_id_exploratory_data_analysis": {
+        "type": "String",
+        "variableName": "notebook_id_exploratory_data_analysis",
+        "libraryName": "VL_Core_Workspace_Context"
+      }
+    }
+  }
+}

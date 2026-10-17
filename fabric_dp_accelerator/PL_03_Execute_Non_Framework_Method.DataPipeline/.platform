@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "PL_03_Execute_Non_Framework_Method",
+    "description": ""
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "fdfd5f04-ae04-99f7-49a7-6a33a195aa8d"
+  }
+}

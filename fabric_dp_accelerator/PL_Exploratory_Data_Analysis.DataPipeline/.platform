@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "PL_Exploratory_Data_Analysis",
+    "description": ""
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "5df24150-1db1-924c-436c-d8f6b691b8b6"
+  }
+}

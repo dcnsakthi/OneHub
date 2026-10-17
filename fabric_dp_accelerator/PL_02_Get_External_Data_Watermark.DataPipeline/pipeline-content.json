@@ -1,0 +1,446 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "Connection",
+        "type": "Switch",
+        "dependsOn": [],
+        "typeProperties": {
+          "on": {
+            "value": "@pipeline().parameters.primary_config.source_details_source",
+            "type": "Expression"
+          },
+          "cases": [
+            {
+              "value": "oracle",
+              "activities": [
+                {
+                  "name": "Oracle Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "OracleSource",
+                      "oracleReaderQuery": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      },
+                      "partitionOption": "None",
+                      "queryTimeout": "02:00:00"
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "OracleTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Oracle Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "Oracle Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('Oracle Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "azure_sql",
+              "activities": [
+                {
+                  "name": "AzureSQL Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "AzureSqlSource",
+                      "sqlReaderQuery": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None"
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "AzureSqlTable",
+                      "schema": [],
+                      "typeProperties": {
+                        "database": {
+                          "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                          "type": "Expression"
+                        }
+                      },
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "AzureSQL Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "AzureSQL Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('AzureSQL Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "db2",
+              "activities": [
+                {
+                  "name": "DB2 Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "Db2Source",
+                      "query": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      }
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "Db2Table",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "DB2 Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "DB2 Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('DB2 Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "sql_server",
+              "activities": [
+                {
+                  "name": "SQLServer Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "SqlServerSource",
+                      "sqlReaderQuery": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      },
+                      "queryTimeout": "02:00:00",
+                      "partitionOption": "None"
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "SqlServerTable",
+                      "schema": [],
+                      "typeProperties": {
+                        "database": {
+                          "value": "@pipeline().parameters.primary_config.source_details_database_name",
+                          "type": "Expression"
+                        }
+                      },
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "SQLServer Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "SQLServer Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('SQLServer Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "postgre_sql",
+              "activities": [
+                {
+                  "name": "PostgreSQL Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "PostgreSqlSource",
+                      "query": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      }
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "PostgreSqlTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "PostgreSQL Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "PostgreSQL Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('PostgreSQL Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "value": "my_sql",
+              "activities": [
+                {
+                  "name": "MySQL Get Max Value of Watermark",
+                  "type": "Lookup",
+                  "dependsOn": [],
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 3,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "source": {
+                      "type": "MySqlSource",
+                      "query": {
+                        "value": "SELECT  MAX(@{pipeline().parameters.primary_config.watermark_details_column_name}) as Watermark_Value\nFROM    @{pipeline().parameters.primary_config.source_details_schema_name}.@{pipeline().parameters.primary_config.source_details_table_name}",
+                        "type": "Expression"
+                      }
+                    },
+                    "datasetSettings": {
+                      "annotations": [],
+                      "type": "MySqlTable",
+                      "schema": [],
+                      "typeProperties": {},
+                      "externalReferences": {
+                        "connection": "@pipeline().parameters.source_datastore_config.Connection_ID"
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "MySQL Set Watermark",
+                  "type": "SetVariable",
+                  "dependsOn": [
+                    {
+                      "activity": "MySQL Get Max Value of Watermark",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ],
+                  "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                  },
+                  "typeProperties": {
+                    "variableName": "watermark_value",
+                    "value": {
+                      "value": "@string(activity('MySQL Get Max Value of Watermark').output.firstRow.Watermark_Value)",
+                      "type": "Expression"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "defaultActivities": [
+            {
+              "name": "UTCNow Watermark Value",
+              "type": "SetVariable",
+              "dependsOn": [],
+              "policy": {
+                "secureOutput": false,
+                "secureInput": false
+              },
+              "typeProperties": {
+                "variableName": "watermark_value",
+                "value": {
+                  "value": "@utcNow('yyyy-MM-ddTHH:mm:ss')",
+                  "type": "Expression"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "WatermarkValueOutput",
+        "type": "SetVariable",
+        "dependsOn": [
+          {
+            "activity": "Connection",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "variableName": "pipelineReturnValue",
+          "value": [
+            {
+              "key": "watermark_value",
+              "value": {
+                "type": "Expression",
+                "content": "@variables('watermark_value')"
+              }
+            }
+          ],
+          "setSystemVariable": true
+        }
+      }
+    ],
+    "parameters": {
+      "primary_config": {
+        "type": "object"
+      },
+      "source_datastore_config": {
+        "type": "object"
+      },
+      "data_product_context": {
+        "type": "object"
+      }
+    },
+    "variables": {
+      "watermark_value": {
+        "type": "String"
+      }
+    }
+  }
+}

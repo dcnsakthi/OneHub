@@ -1,0 +1,895 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "batchCount": 50,
+          "items": {
+            "value": "@json(concat('[', pipeline().parameters.pipeline_table_details, ']'))",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Switch",
+              "typeProperties": {
+                "on": {
+                  "value": "@split(item(), ':')[1]",
+                  "type": "Expression"
+                },
+                "cases": [
+                  {
+                    "value": "pipeline_stage_only",
+                    "activities": [
+                      {
+                        "type": "ExecutePipeline",
+                        "typeProperties": {
+                          "pipeline": {
+                            "referenceName": "4910efa6-88f9-90a9-46ef-ef38b177fa56",
+                            "type": "PipelineReference"
+                          },
+                          "parameters": {
+                            "start_time": {
+                              "value": "@utcNow()",
+                              "type": "Expression"
+                            },
+                            "trigger_execution_id": {
+                              "value": "@pipeline().parameters.trigger_execution_id",
+                              "type": "Expression"
+                            },
+                            "trigger_execution_time": {
+                              "value": "@pipeline().parameters.trigger_execution_time",
+                              "type": "Expression"
+                            },
+                            "table_id": {
+                              "value": "@split(item(), ':')[0]",
+                              "type": "Expression"
+                            },
+                            "trigger_name": {
+                              "value": "@pipeline().parameters.trigger_name",
+                              "type": "Expression"
+                            },
+                            "target_datastore": {
+                              "value": "@split(item(), ':')[2]",
+                              "type": "Expression"
+                            },
+                            "target_entity": {
+                              "value": "@split(item(), ':')[3]",
+                              "type": "Expression"
+                            },
+                            "source_datastore_name": {
+                              "value": "@split(item(), ':')[4]",
+                              "type": "Expression"
+                            },
+                            "staging_lakehouse_name": {
+                              "value": "@split(item(), ':')[5]",
+                              "type": "Expression"
+                            },
+                            "spark_environment_id": {
+                              "value": "@split(item(), ':')[6]",
+                              "type": "Expression"
+                            },
+                            "notebook_session_tag": {
+                              "value": "@split(item(), ':')[7]",
+                              "type": "Expression"
+                            },
+                            "event_payload": {
+                              "value": "@pipeline().parameters.event_payload",
+                              "type": "Expression"
+                            },
+                            "folder_path_from_trigger": {
+                              "value": "@pipeline().parameters.folder_path_from_trigger",
+                              "type": "Expression"
+                            },
+                            "log_id": {
+                              "value": "@split(item(), ':')[8]",
+                              "type": "Expression"
+                            },
+                            "data_product_context": {
+                              "value": "@pipeline().parameters.data_product_context",
+                              "type": "Expression"
+                            }
+                          },
+                          "waitOnCompletion": true
+                        },
+                        "policy": {
+                          "secureInput": false
+                        },
+                        "name": "Pipeline Stage Only",
+                        "dependsOn": []
+                      },
+                      {
+                        "type": "SqlServerStoredProcedure",
+                        "typeProperties": {
+                          "storedProcedureName": {
+                            "value": "[dbo].[Insert_Activity_Log_Entry]",
+                            "type": "Expression"
+                          },
+                          "storedProcedureParameters": {
+                            "log_id": {
+                              "value": {
+                                "value": "@split(item(), ':')[8]",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "data_product_key": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "table_id": {
+                              "value": {
+                                "value": "@split(item(), ':')[0]",
+                                "type": "Expression"
+                              },
+                              "type": "Int32"
+                            },
+                            "log_level": {
+                              "value": {
+                                "value": "ERROR",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "step_name": {
+                              "value": {
+                                "value": "Pipeline Stage Only",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "step_number": {
+                              "value": {
+                                "value": "1",
+                                "type": "Expression"
+                              },
+                              "type": "Int32"
+                            },
+                            "message": {
+                              "value": {
+                                "value": "@activity('Pipeline Stage Only').Error.Message",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "source_type": {
+                              "value": {
+                                "value": "Pipeline",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            }
+                          }
+                        },
+                        "linkedService": {
+                          "name": "b895d8d6_4eea_4ad0_8abe_ccf1e84da3c0",
+                          "properties": {
+                            "type": "DataWarehouse",
+                            "typeProperties": {
+                              "artifactId": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_ID",
+                              "endpoint": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_Endpoint",
+                              "workspaceId": "@pipeline().parameters.data_product_context.Central_Metadata_Workspace_ID"
+                            },
+                            "annotations": []
+                          }
+                        },
+                        "policy": {
+                          "timeout": "0.12:00:00",
+                          "retry": 2,
+                          "retryIntervalInSeconds": 30,
+                          "secureInput": false,
+                          "secureOutput": false
+                        },
+                        "name": "Add Activity Logging Record if Failure 2",
+                        "dependsOn": [
+                          {
+                            "activity": "Pipeline Stage Only",
+                            "dependencyConditions": [
+                              "Failed"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Fail",
+                        "typeProperties": {
+                          "message": {
+                            "value": "@activity('Pipeline Stage Only').Error.Message",
+                            "type": "Expression"
+                          },
+                          "errorCode": "100"
+                        },
+                        "name": "Pipeline Failed 2",
+                        "dependsOn": [
+                          {
+                            "activity": "Add Activity Logging Record if Failure 2",
+                            "dependencyConditions": [
+                              "Succeeded"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": "pipeline_stage_and_batch",
+                    "activities": [
+                      {
+                        "type": "ExecutePipeline",
+                        "typeProperties": {
+                          "pipeline": {
+                            "referenceName": "4910efa6-88f9-90a9-46ef-ef38b177fa56",
+                            "type": "PipelineReference"
+                          },
+                          "parameters": {
+                            "start_time": {
+                              "value": "@utcNow()",
+                              "type": "Expression"
+                            },
+                            "trigger_execution_id": {
+                              "value": "@pipeline().parameters.trigger_execution_id",
+                              "type": "Expression"
+                            },
+                            "trigger_execution_time": {
+                              "value": "@pipeline().parameters.trigger_execution_time",
+                              "type": "Expression"
+                            },
+                            "table_id": {
+                              "value": "@split(item(), ':')[0]",
+                              "type": "Expression"
+                            },
+                            "trigger_name": {
+                              "value": "@pipeline().parameters.trigger_name",
+                              "type": "Expression"
+                            },
+                            "target_datastore": {
+                              "value": "@split(item(), ':')[2]",
+                              "type": "Expression"
+                            },
+                            "target_entity": {
+                              "value": "@split(item(), ':')[3]",
+                              "type": "Expression"
+                            },
+                            "source_datastore_name": {
+                              "value": "@split(item(), ':')[4]",
+                              "type": "Expression"
+                            },
+                            "staging_lakehouse_name": {
+                              "value": "@split(item(), ':')[5]",
+                              "type": "Expression"
+                            },
+                            "spark_environment_id": {
+                              "value": "@split(item(), ':')[6]",
+                              "type": "Expression"
+                            },
+                            "notebook_session_tag": {
+                              "value": "@split(item(), ':')[7]",
+                              "type": "Expression"
+                            },
+                            "event_payload": {
+                              "value": "@pipeline().parameters.event_payload",
+                              "type": "Expression"
+                            },
+                            "folder_path_from_trigger": {
+                              "value": "@pipeline().parameters.folder_path_from_trigger",
+                              "type": "Expression"
+                            },
+                            "log_id": {
+                              "value": "@split(item(), ':')[8]",
+                              "type": "Expression"
+                            },
+                            "data_product_context": {
+                              "value": "@pipeline().parameters.data_product_context",
+                              "type": "Expression"
+                            }
+                          },
+                          "waitOnCompletion": true
+                        },
+                        "policy": {
+                          "secureInput": false
+                        },
+                        "name": "Pipeline Stage then Batch",
+                        "dependsOn": []
+                      },
+                      {
+                        "type": "SqlServerStoredProcedure",
+                        "typeProperties": {
+                          "storedProcedureName": {
+                            "value": "[dbo].[Insert_Activity_Log_Entry]",
+                            "type": "Expression"
+                          },
+                          "storedProcedureParameters": {
+                            "log_id": {
+                              "value": {
+                                "value": "@split(item(), ':')[8]",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "data_product_key": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "table_id": {
+                              "value": {
+                                "value": "@split(item(), ':')[0]",
+                                "type": "Expression"
+                              },
+                              "type": "Int32"
+                            },
+                            "log_level": {
+                              "value": {
+                                "value": "ERROR",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "step_name": {
+                              "value": {
+                                "value": "Pipeline Stage then Batch",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "step_number": {
+                              "value": {
+                                "value": "1",
+                                "type": "Expression"
+                              },
+                              "type": "Int32"
+                            },
+                            "message": {
+                              "value": {
+                                "value": "@activity('Pipeline Stage then Batch').Error.Message",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            },
+                            "source_type": {
+                              "value": {
+                                "value": "Pipeline",
+                                "type": "Expression"
+                              },
+                              "type": "String"
+                            }
+                          }
+                        },
+                        "linkedService": {
+                          "name": "b895d8d6_4eea_4ad0_8abe_ccf1e84da3c0",
+                          "properties": {
+                            "type": "DataWarehouse",
+                            "typeProperties": {
+                              "artifactId": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_ID",
+                              "endpoint": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_Endpoint",
+                              "workspaceId": "@pipeline().parameters.data_product_context.Central_Metadata_Workspace_ID"
+                            },
+                            "annotations": []
+                          }
+                        },
+                        "policy": {
+                          "timeout": "0.12:00:00",
+                          "retry": 2,
+                          "retryIntervalInSeconds": 30,
+                          "secureInput": false,
+                          "secureOutput": false
+                        },
+                        "name": "Add Activity Logging Record if Failure 3",
+                        "dependsOn": [
+                          {
+                            "activity": "Pipeline Stage then Batch",
+                            "dependencyConditions": [
+                              "Failed"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Fail",
+                        "typeProperties": {
+                          "message": {
+                            "value": "@activity('Pipeline Stage then Batch').Error.Message",
+                            "type": "Expression"
+                          },
+                          "errorCode": "100"
+                        },
+                        "name": "Pipeline Failed 3",
+                        "dependsOn": [
+                          {
+                            "activity": "Add Activity Logging Record if Failure 3",
+                            "dependencyConditions": [
+                              "Succeeded"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": "batch",
+                    "activities": [
+                      {
+                        "type": "TridentNotebook",
+                        "typeProperties": {
+                          "notebookId": {
+                            "value": "@pipeline().libraryVariables.notebook_id_batch_processing",
+                            "type": "Expression"
+                          },
+                          "workspaceId": {
+                            "value": "@pipeline().libraryVariables.spark_compute_workspace_id",
+                            "type": "Expression"
+                          },
+                          "parameters": {
+                            "metadata_warehouse_endpoint": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Warehouse_Endpoint",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "metadata_warehouse_name": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Warehouse_Name",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "central_metadata_warehouse_endpoint": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_Endpoint",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "central_metadata_warehouse_name": {
+                              "value": {
+                                "value": "@pipeline().libraryVariables.central_metadata_warehouse_name",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "data_product_key": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "table_id": {
+                              "value": {
+                                "value": "@split(item(), ':')[0]",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "trigger_name": {
+                              "value": {
+                                "value": "@pipeline().parameters.trigger_name",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "trigger_step": {
+                              "value": {
+                                "value": "@pipeline().parameters.order_of_operations",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "trigger_execution_id": {
+                              "value": {
+                                "value": "@pipeline().parameters.trigger_execution_id",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "trigger_execution_time": {
+                              "value": {
+                                "value": "@pipeline().parameters.trigger_execution_time",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "start_time": {
+                              "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "target_datastore": {
+                              "value": {
+                                "value": "@split(item(), ':')[2]",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "target_entity": {
+                              "value": {
+                                "value": "@split(item(), ':')[3]",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "event_payload": {
+                              "value": {
+                                "value": "@pipeline().parameters.event_payload",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "folder_path_from_trigger": {
+                              "value": {
+                                "value": "@pipeline().parameters.folder_path_from_trigger",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "data_factory_run_id": {
+                              "value": {
+                                "value": "@pipeline().RunId",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "default_lakehouse_name": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Lakehouse_Name",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "default_lakehouse_id": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Lakehouse_ID",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "default_lakehouse_workspace_id": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Workspace_ID",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "spark_environment_id": {
+                              "value": {
+                                "value": "@if(equals(split(item(), ':')[6],'')\n    ,pipeline().libraryVariables.default_spark_environment_id\n    ,split(item(), ':')[6]\n)",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "runtime_environment": {
+                              "value": {
+                                "value": "@pipeline().libraryVariables.runtime_environment",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "custom_function_workspace_id": {
+                              "value": {
+                                "value": "@pipeline().parameters.data_product_context.Custom_Function_Workspace_ID",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "custom_function_load_mode": {
+                              "value": {
+                                "value": "@pipeline().libraryVariables.custom_function_load_mode",
+                                "type": "Expression"
+                              },
+                              "type": "string"
+                            },
+                            "table_ddl": {
+                              "value": "[]",
+                              "type": "string"
+                            },
+                            "max_attempts": {
+                              "value": {
+                                "value": "@if(\n    equals(pipeline().libraryVariables.runtime_environment, 'prod'),\n    3,\n    1\n)",
+                                "type": "Expression"
+                              },
+                              "type": "int"
+                            }
+                          },
+                          "sessionTag": {
+                            "value": "@split(item(), ':')[7]",
+                            "type": "Expression"
+                          }
+                        },
+                        "policy": {
+                          "timeout": "0.12:00:00",
+                          "retry": 0,
+                          "retryIntervalInSeconds": 30,
+                          "secureInput": false,
+                          "secureOutput": false
+                        },
+                        "name": "Batch Notebook",
+                        "dependsOn": []
+                      }
+                    ]
+                  }
+                ],
+                "defaultActivities": [
+                  {
+                    "type": "ExecutePipeline",
+                    "typeProperties": {
+                      "pipeline": {
+                        "referenceName": "fdfd5f04-ae04-99f7-49a7-6a33a195aa8d",
+                        "type": "PipelineReference"
+                      },
+                      "parameters": {
+                        "start_time": {
+                          "value": "@utcNow()",
+                          "type": "Expression"
+                        },
+                        "trigger_execution_id": {
+                          "value": "@pipeline().parameters.trigger_execution_id",
+                          "type": "Expression"
+                        },
+                        "trigger_execution_time": {
+                          "value": "@pipeline().parameters.trigger_execution_time",
+                          "type": "Expression"
+                        },
+                        "event_payload": {
+                          "value": "@pipeline().parameters.event_payload",
+                          "type": "Expression"
+                        },
+                        "folder_path_from_trigger": {
+                          "value": "@pipeline().parameters.folder_path_from_trigger",
+                          "type": "Expression"
+                        },
+                        "primary_config": "{}",
+                        "processing_method": {
+                          "value": "@split(item(), ':')[1]",
+                          "type": "Expression"
+                        },
+                        "table_id": {
+                          "value": "@split(item(), ':')[0]",
+                          "type": "Expression"
+                        },
+                        "trigger_name": {
+                          "value": "@pipeline().parameters.trigger_name",
+                          "type": "Expression"
+                        },
+                        "target_datastore": {
+                          "value": "@split(item(), ':')[2]",
+                          "type": "Expression"
+                        },
+                        "trigger_step": {
+                          "value": "@pipeline().parameters.order_of_operations",
+                          "type": "Expression"
+                        },
+                        "target_entity": {
+                          "value": "@split(item(), ':')[3]",
+                          "type": "Expression"
+                        },
+                        "source_datastore_name": {
+                          "value": "@split(item(), ':')[4]",
+                          "type": "Expression"
+                        },
+                        "log_id": {
+                          "value": "@split(item(), ':')[8]",
+                          "type": "Expression"
+                        },
+                        "data_product_context": {
+                          "value": "@pipeline().parameters.data_product_context",
+                          "type": "Expression"
+                        }
+                      },
+                      "waitOnCompletion": true
+                    },
+                    "policy": {
+                      "secureInput": false
+                    },
+                    "name": "Execute Non Framework Method",
+                    "dependsOn": []
+                  },
+                  {
+                    "type": "SqlServerStoredProcedure",
+                    "typeProperties": {
+                      "storedProcedureName": {
+                        "value": "[dbo].[Insert_Activity_Log_Entry]",
+                        "type": "Expression"
+                      },
+                      "storedProcedureParameters": {
+                        "log_id": {
+                          "value": {
+                            "value": "@split(item(), ':')[8]",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "data_product_key": {
+                          "value": {
+                            "value": "@pipeline().parameters.data_product_context.Data_Product_Key",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "table_id": {
+                          "value": {
+                            "value": "@split(item(), ':')[0]",
+                            "type": "Expression"
+                          },
+                          "type": "Int32"
+                        },
+                        "log_level": {
+                          "value": {
+                            "value": "ERROR",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "step_name": {
+                          "value": {
+                            "value": "Execute Non Framework Method",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "step_number": {
+                          "value": {
+                            "value": "1",
+                            "type": "Expression"
+                          },
+                          "type": "Int32"
+                        },
+                        "message": {
+                          "value": {
+                            "value": "@activity('Execute Non Framework Method').Error.Message",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "source_type": {
+                          "value": {
+                            "value": "Pipeline",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        }
+                      }
+                    },
+                    "linkedService": {
+                      "name": "b895d8d6_4eea_4ad0_8abe_ccf1e84da3c0",
+                      "properties": {
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                          "artifactId": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_ID",
+                          "endpoint": "@pipeline().parameters.data_product_context.Central_Metadata_Warehouse_Endpoint",
+                          "workspaceId": "@pipeline().parameters.data_product_context.Central_Metadata_Workspace_ID"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 2,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "Add Activity Logging Record if Failure",
+                    "dependsOn": [
+                      {
+                        "activity": "Execute Non Framework Method",
+                        "dependencyConditions": [
+                          "Failed"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Fail",
+                    "typeProperties": {
+                      "message": {
+                        "value": "@activity('Execute Non Framework Method').Error.Message",
+                        "type": "Expression"
+                      },
+                      "errorCode": "100"
+                    },
+                    "name": "Pipeline Failed",
+                    "dependsOn": [
+                      {
+                        "activity": "Add Activity Logging Record if Failure",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "name": "Route to Processing_Method",
+              "description": "",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "For Each Entity",
+        "description": "",
+        "dependsOn": []
+      }
+    ],
+    "parameters": {
+      "trigger_name": {
+        "type": "string"
+      },
+      "order_of_operations": {
+        "type": "int"
+      },
+      "pipeline_table_details": {
+        "type": "string"
+      },
+      "trigger_execution_id": {
+        "type": "string"
+      },
+      "trigger_execution_time": {
+        "type": "string"
+      },
+      "event_payload": {
+        "type": "string"
+      },
+      "folder_path_from_trigger": {
+        "type": "string"
+      },
+      "data_product_context": {
+        "type": "object"
+      }
+    },
+    "libraryVariables": {
+      "spark_compute_workspace_id": {
+        "type": "String",
+        "variableName": "spark_compute_workspace_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "notebook_id_batch_processing": {
+        "type": "String",
+        "variableName": "notebook_id_batch_processing",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "default_spark_environment_id": {
+        "type": "String",
+        "variableName": "default_spark_environment_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "runtime_environment": {
+        "type": "String",
+        "variableName": "runtime_environment",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "custom_function_load_mode": {
+        "type": "String",
+        "variableName": "custom_function_load_mode",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_workspace_id": {
+        "type": "String",
+        "variableName": "central_metadata_workspace_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_warehouse_id": {
+        "type": "String",
+        "variableName": "central_metadata_warehouse_id",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_warehouse_endpoint": {
+        "type": "String",
+        "variableName": "central_metadata_warehouse_endpoint",
+        "libraryName": "VL_Core_Workspace_Context"
+      },
+      "central_metadata_warehouse_name": {
+        "type": "String",
+        "variableName": "central_metadata_warehouse_name",
+        "libraryName": "VL_Core_Workspace_Context"
+      }
+    }
+  }
+}

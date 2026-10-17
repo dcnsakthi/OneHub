@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "NB_Helper_Functions_Lineage",
+    "description": "Helper functions for data pipeline lineage graph analysis, narrative generation, and change detection."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3e791245-20be-aa87-45b9-b739428bbb8e"
+  }
+}

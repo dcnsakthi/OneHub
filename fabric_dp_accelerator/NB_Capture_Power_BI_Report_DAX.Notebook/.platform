@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "NB_Capture_Power_BI_Report_DAX",
+    "description": "Capture report-generated DAX and provenance for migration parity validation."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1f67fc2e-a9d8-894e-470d-fbce7032ae49"
+  }
+}

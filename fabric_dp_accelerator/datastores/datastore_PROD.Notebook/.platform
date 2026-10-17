@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "datastore_PROD",
+    "description": "Datastore configuration for PROD environment. Run this notebook to register all datastores in dbo.Datastore_Configuration."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "824bbc84-c6ab-aeb4-4a34-9d771691a7f3"
+  }
+}

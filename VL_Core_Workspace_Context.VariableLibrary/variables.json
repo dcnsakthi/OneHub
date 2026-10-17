@@ -1,0 +1,113 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "default_workspace_id",
+      "note": "Workspace ID used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "76e43058-b99b-403a-8603-174631f16837"
+    },
+    {
+      "name": "default_warehouse_id",
+      "note": "Fabric item ID of the warehouse used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "9571eb93-3d83-46f5-a88b-dd995f2870bb"
+    },
+    {
+      "name": "default_warehouse_endpoint",
+      "note": "SQL endpoint for the warehouse used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "6s3w3rwx57zelkdrd3lzl6ukpq-layoi5u3xe5ebbqdc5ddd4lig4.datawarehouse.fabric.microsoft.com"
+    },
+    {
+      "name": "default_warehouse_name",
+      "note": "Display name of the warehouse used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "metadata_warehouse"
+    },
+    {
+      "name": "central_metadata_workspace_id",
+      "note": "Workspace ID that hosts the central metadata warehouse. Usually matches default_workspace_id in single-workspace deployments.",
+      "type": "String",
+      "value": "76e43058-b99b-403a-8603-174631f16837"
+    },
+    {
+      "name": "central_metadata_warehouse_id",
+      "note": "Fabric item ID of the central metadata warehouse used for logs, schemas, watermarks, and shared datastore lookup.",
+      "type": "String",
+      "value": "9571eb93-3d83-46f5-a88b-dd995f2870bb"
+    },
+    {
+      "name": "central_metadata_warehouse_name",
+      "note": "Display/database name of the central metadata warehouse. Usually matches default_warehouse_name in single-workspace deployments.",
+      "type": "String",
+      "value": "metadata_warehouse"
+    },
+    {
+      "name": "central_metadata_warehouse_endpoint",
+      "note": "SQL endpoint for the central metadata warehouse. Usually matches default_warehouse_endpoint in single-workspace deployments.",
+      "type": "String",
+      "value": "6s3w3rwx57zelkdrd3lzl6ukpq-layoi5u3xe5ebbqdc5ddd4lig4.datawarehouse.fabric.microsoft.com"
+    },
+    {
+      "name": "default_lakehouse_id",
+      "note": "Fabric item ID of the lakehouse used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "69777b32-f6cf-4286-88c8-c96ec30a177c"
+    },
+    {
+      "name": "default_lakehouse_name",
+      "note": "Display name of the lakehouse used by the built-in Default data product in single-workspace deployments.",
+      "type": "String",
+      "value": "metadata_lakehouse"
+    },
+    {
+      "name": "pipeline_workspace_id",
+      "note": "Workspace ID used by agents and external callers to invoke orchestration pipelines. In single-workspace deployments, this matches default_workspace_id; feature workspace setup overrides it to the feature workspace.",
+      "type": "String",
+      "value": "76e43058-b99b-403a-8603-174631f16837"
+    },
+    {
+      "name": "spark_compute_workspace_id",
+      "note": "Workspace ID where Spark notebooks are deployed and executed.",
+      "type": "String",
+      "value": "76e43058-b99b-403a-8603-174631f16837"
+    },
+    {
+      "name": "notebook_id_batch_processing",
+      "note": "Fabric item ID of NB_Batch_Processing, used by pipelines and local run helpers to start framework batch execution.",
+      "type": "String",
+      "value": "f0df4510-75c3-4098-9070-2e0d69774285"
+    },
+    {
+      "name": "notebook_id_exploratory_data_analysis",
+      "note": "Fabric item ID of NB_Run_Exploratory_Data_Analysis, used by the exploratory data analysis pipeline.",
+      "type": "String",
+      "value": "bc675087-1b9e-4b0c-9a04-2c59abe8771c"
+    },
+    {
+      "name": "default_spark_environment_id",
+      "note": "Fabric Environment ID applied to notebook runs when no per-run spark_environment_id override is provided.",
+      "type": "String",
+      "value": "5f54bf14-07c4-4711-8586-16ef66c31eb3"
+    },
+    {
+      "name": "runtime_environment",
+      "note": "Logical environment label for environment-scoped DQ and reconciliation checks. Set to dev, qa, or prod.",
+      "type": "String",
+      "value": "dev"
+    },
+    {
+      "name": "custom_function_load_mode",
+      "note": "Custom function loading mode for NB_Batch_Processing. Valid values: file, notebook. CI/CD stamps file for QA and PROD.",
+      "type": "String",
+      "value": "notebook"
+    },
+    {
+      "name": "is_feature_workspace",
+      "note": "Whether this is an ephemeral feature workspace. Base value false; the FeatureWorkspaceConfig value set overrides it to true. Threaded into the runtime context and excluded from durable cross-product lineage discovery.",
+      "type": "String",
+      "value": "false"
+    }
+  ]
+}

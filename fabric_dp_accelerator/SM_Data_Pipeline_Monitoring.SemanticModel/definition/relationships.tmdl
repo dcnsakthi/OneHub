@@ -1,0 +1,10 @@
+relationship e559377e-e8d9-d72b-824c-e533abb7576b
+	relyOnReferentialIntegrity
+	fromColumn: Data_Pipeline_Logs.Date_Key
+	toColumn: Date_Dimension.Date_Key
+
+relationship 82ba4c8f-c225-30b8-5dc5-b9cc94132afc
+	relyOnReferentialIntegrity
+	fromColumn: Data_Quality_Notifications.Date_Key
+	toColumn: Date_Dimension.Date_Key
+

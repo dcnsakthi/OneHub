@@ -1,0 +1,96 @@
+table Data_Pipeline_Metadata_Orchestration
+	lineageTag: 588faabb-0df1-4de9-8068-3d6ae4b055f9
+	sourceLineageTag: [dbo].[Data_Pipeline_Metadata_Orchestration]
+
+	column Trigger_Name
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 6d62cbf9-cd24-4539-b1b3-34c44d7fdf7c
+		sourceLineageTag: Trigger_Name
+		summarizeBy: none
+		sourceColumn: Trigger_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Order_Of_Operations
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: cc58b3b8-ad5f-4f83-9725-fe633377d0ab
+		sourceLineageTag: Order_Of_Operations
+		summarizeBy: sum
+		sourceColumn: Order_Of_Operations
+
+		annotation SummarizationSetBy = Automatic
+
+	column Table_ID
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 961aa7c4-555d-4db3-a59e-8c29b484eb28
+		sourceLineageTag: Table_ID
+		summarizeBy: none
+		sourceColumn: Table_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Datastore
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 1314da63-dc78-4ece-ae5a-c4224613451e
+		sourceLineageTag: Target_Datastore
+		summarizeBy: none
+		sourceColumn: Target_Datastore
+
+		annotation SummarizationSetBy = Automatic
+
+	column Target_Entity
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: 78abb94e-050d-41f1-b0d8-f2d575b2ac6f
+		sourceLineageTag: Target_Entity
+		summarizeBy: none
+		sourceColumn: Target_Entity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Primary_Keys
+		dataType: string
+		sourceProviderType: varchar(4000)
+		lineageTag: a1a8f15d-9d20-4381-a25f-a90a0a8c0d53
+		sourceLineageTag: Primary_Keys
+		summarizeBy: none
+		sourceColumn: Primary_Keys
+
+		annotation SummarizationSetBy = Automatic
+
+	column Processing_Method
+		dataType: string
+		sourceProviderType: varchar(200)
+		lineageTag: 636bf8eb-3c11-4fdf-bff0-6b543d7f311c
+		sourceLineageTag: Processing_Method
+		summarizeBy: none
+		sourceColumn: Processing_Method
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ingestion_Active
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: d1e227f8-4a30-4b1a-b313-33200cd4d861
+		sourceLineageTag: Ingestion_Active
+		summarizeBy: sum
+		sourceColumn: Ingestion_Active
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Data_Pipeline_Metadata_Orchestration = entity
+		mode: directLake
+		source
+			entityName: Data_Pipeline_Metadata_Orchestration
+			schemaName: dbo
+			expressionSource: DatabaseQuery
+
+	annotation PBI_ResultType = Table
+

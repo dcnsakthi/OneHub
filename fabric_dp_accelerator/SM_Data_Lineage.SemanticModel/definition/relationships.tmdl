@@ -1,0 +1,15 @@
+relationship 2a3c1e62-5d73-59de-52b3-b078d6b879ff
+	relyOnReferentialIntegrity
+	fromColumn: Data_Pipeline_Metadata_Advanced_Configuration.Table_ID
+	toColumn: Data_Pipeline_Metadata_Orchestration.Table_ID
+
+relationship 81379f27-408e-c902-76ec-1047521f57b2
+	relyOnReferentialIntegrity
+	fromColumn: Data_Pipeline_Metadata_Primary_Configuration.Table_ID
+	toColumn: Data_Pipeline_Metadata_Orchestration.Table_ID
+
+relationship 55f2d802-ddc2-c2e6-d068-2189b9196b78
+	relyOnReferentialIntegrity
+	fromColumn: Data_Pipeline_Lineage.Target_Table_ID
+	toColumn: Data_Pipeline_Metadata_Orchestration.Table_ID
+

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "RP_Data_Pipeline_Monitoring",
+    "description": ""
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "546f7a64-92bf-89a1-4a67-ef4463f182d2"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "datastore_QA",
+    "description": "Datastore configuration for QA environment. Run this notebook to register all datastores in dbo.Datastore_Configuration."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3d0b3bd9-819c-bff7-44f8-a532a826392f"
+  }
+}
